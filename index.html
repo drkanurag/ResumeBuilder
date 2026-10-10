@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResuCraft Pro — Customizable Public Resume Studio</title>
+  <!-- Google Fonts with graceful local fallbacks -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:wght@400;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="templates.css" />
+</head>
+<body>
+
+  <!-- ========================================================================
+       Top Command Bar
+       ======================================================================== -->
+  <header class="topbar">
+    <div class="brand-group">
+      <div class="brand-logo" title="ResuCraft Pro">RC</div>
+      <div>
+        <div class="brand-title">
+          ResuCraft Pro
+          <span class="brand-badge">Public Studio</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-Resume Profile Manager Bar -->
+    <div class="profile-bar">
+      <label for="profileSelect">Resume:</label>
+      <select id="profileSelect" class="profile-select" title="Switch between your saved resumes"></select>
+      <button type="button" id="btnNewProfile" class="btn btn-sm" title="Create a new blank resume">+ New</button>
+      <button type="button" id="btnDuplicateProfile" class="btn btn-sm" title="Duplicate current resume">Duplicate</button>
+      <button type="button" id="btnRenameProfile" class="btn btn-sm" title="Rename current resume">Rename</button>
+      <button type="button" id="btnDeleteProfile" class="btn btn-sm btn-danger" title="Delete current resume">✕</button>
+      <span id="saveStatusPill" class="save-pill">✓ Auto-Saved</span>
+    </div>
+
+    <!-- Global Actions: Undo/Redo, Reset, AI Config, Import/Export, Theme, PDF -->
+    <div class="topbar-actions">
+      <button type="button" id="btnUndo" class="btn btn-sm" title="Undo last change (Ctrl+Z)" disabled>
+        ↶ Undo
+      </button>
+      <button type="button" id="btnRedo" class="btn btn-sm" title="Redo change (Ctrl+Y)" disabled>
+        ↷ Redo
+      </button>
+
+      <button type="button" id="btnResetResume" class="btn btn-danger" title="Clear all fields in current resume">
+        🗑️ Clear All
+      </button>
+
+      <button type="button" id="btnOpenAISettings" class="btn btn-ai" title="Configure Local Smart Engine or Gemini / OpenAI API Key">
+        ✨ AI Engine
+      </button>
+
+      <button type="button" id="btnExportJSON" class="btn" title="Download your resume data as JSON">
+        ⬇ JSON
+      </button>
+      <button type="button" id="btnImportJSON" class="btn" title="Import resume data from JSON file">
+        ⬆ Import
+      </button>
+      <input type="file" id="jsonFileInput" accept=".json,application/json" style="display: none;" />
+
+      <button type="button" id="btnThemeToggle" class="btn btn-icon" title="Toggle Dark / Light Workspace Theme">
+        🌗
+      </button>
+
+      <button type="button" id="btnExportPDF" class="btn btn-primary" title="Export crisp vector PDF (Select 'Save as PDF' in print dialog)">
+        🖨️ Export PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       Main Split Workspace
+       ======================================================================== -->
+  <main class="workspace">
+
+    <!-- LEFT PANE: Content Editor, Design, ATS Analyzer, AI Studio -->
+    <section class="editor-pane" aria-label="Resume Editor and Tools">
+
+      <!-- 4 Main Navigation Tabs -->
+      <nav class="nav-tabs" role="tablist">
+        <button type="button" class="nav-tab active" data-tab="content" role="tab">
+          📝 Content & Headings
+        </button>
+        <button type="button" class="nav-tab" data-tab="design" role="tab">
+          🎨 Design & Layout
+        </button>
+        <button type="button" class="nav-tab" data-tab="ats" role="tab">
+          🎯 ATS Score <span id="navAtsBadge" class="tab-score-pill">0</span>
+        </button>
+        <button type="button" class="nav-tab" data-tab="ai" role="tab">
+          ✨ AI Studio
+        </button>
+      </nav>
+
+      <!-- TAB 1: CONTENT & HEADINGS EDITOR -->
+      <div id="tab-content" class="tab-panel active">
+
+        <!-- Personal Info & Custom Header Fields Card -->
+        <div class="editor-card" id="card-personal">
+          <div class="card-header" data-toggle-card="card-personal">
+            <div class="card-title-group">
+              <span>👤 Personal Details & Contact Header</span>
+            </div>
+            <span class="chevron-icon">▼</span>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="inpFullName">Full Name</label>
+                <input type="text" id="inpFullName" class="form-input" placeholder="Enter your full name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inpJobTitle">Headline / Target Title</label>
+                <input type="text" id="inpJobTitle" class="form-input" placeholder="Enter your role or headline" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inpEmail">Email Address</label>
+                <input type="email" id="inpEmail" class="form-input" placeholder="Enter email address" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inpPhone">Phone Number</label>
+                <input type="text" id="inpPhone" class="form-input" placeholder="Enter phone number" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inpLocation">Location</label>
+                <input type="text" id="inpLocation" class="form-input" placeholder="City, State / Country" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inpWebsite">Website / Portfolio</label>
+                <input type="text" id="inpWebsite" class="form-input" placeholder="Portfolio or personal URL" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inpLinkedin">LinkedIn</label>
+                <input type="text" id="inpLinkedin" class="form-input" placeholder="LinkedIn profile URL" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inpGithub">GitHub / Other Profile</label>
+                <input type="text" id="inpGithub" class="form-input" placeholder="GitHub or other profile link" />
+              </div>
+            </div>
+
+            <!-- Unlimited Custom Contact Fields -->
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
+              <div class="form-label" style="margin-bottom: 6px;">
+                <span>Custom Header Fields (Optional — e.g., ORCID, Visa Status, Nationality, Behance)</span>
+                <button type="button" id="btnAddCustomHeaderField" class="btn btn-sm">+ Add Header Field</button>
+              </div>
+              <div id="customLinksContainer"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Any New Section / Heading Builder Card -->
+        <div class="editor-card" style="border-color: var(--accent-primary);">
+          <div class="card-header" style="cursor: default;">
+            <div class="card-title-group">
+              <span>➕ Add New Heading / Section</span>
+            </div>
+            <span style="font-size: 11px; color: var(--text-secondary);">Rename, reorder, or delete any heading below</span>
+          </div>
+          <div class="card-body">
+            <div class="form-grid" style="margin-bottom: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="inpNewSectionTitle">Heading Name</label>
+                <input type="text" id="inpNewSectionTitle" class="form-input" placeholder="e.g. Internships, Publications, Volunteering, Languages..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="selNewSectionType">Section Format</label>
+                <select id="selNewSectionType" class="form-select">
+                  <option value="detailed">Detailed Entries + Bullets (Experience, Projects, Roles)</option>
+                  <option value="education">Academic / Education (Institution, Degree, GPA)</option>
+                  <option value="skills">Categorized List (Skills, Tools, Languages)</option>
+                  <option value="compact">Compact Items (Certifications, Awards, Courses)</option>
+                  <option value="bullets">Bullet Point List Only (Achievements, Highlights)</option>
+                  <option value="text">Freeform Paragraph / Text (Summary, Objective, Custom)</option>
+                </select>
+              </div>
+            </div>
+            <button type="button" id="btnAddCustomSection" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;">
+              + Add Heading to Resume
+            </button>
+
+            <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 6px;">Quick-add a section:</div>
+            <div class="keyword-pills" id="quickAddSectionChips">
+              <button type="button" class="btn btn-sm" data-quick-type="text" data-quick-title="Professional Summary">+ Summary</button>
+              <button type="button" class="btn btn-sm" data-quick-type="detailed" data-quick-title="Work Experience">+ Experience</button>
+              <button type="button" class="btn btn-sm" data-quick-type="education" data-quick-title="Education">+ Education</button>
+              <button type="button" class="btn btn-sm" data-quick-type="skills" data-quick-title="Skills">+ Skills</button>
+              <button type="button" class="btn btn-sm" data-quick-type="detailed" data-quick-title="Projects">+ Projects</button>
+              <button type="button" class="btn btn-sm" data-quick-type="compact" data-quick-title="Certifications">+ Certifications</button>
+              <button type="button" class="btn btn-sm" data-quick-type="bullets" data-quick-title="Achievements & Awards">+ Achievements</button>
+              <button type="button" class="btn btn-sm" data-quick-type="detailed" data-quick-title="Leadership & Volunteering">+ Volunteering</button>
+              <button type="button" class="btn btn-sm" data-quick-type="compact" data-quick-title="Publications">+ Publications</button>
+              <button type="button" class="btn btn-sm" data-quick-type="skills" data-quick-title="Languages & Interests">+ Languages</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Sections Container (Every section heading, item, and bullet can be edited, moved, or deleted) -->
+        <div id="dynamicSectionsContainer"></div>
+
+      </div>
+
+      <!-- TAB 2: DESIGN & LAYOUT -->
+      <div id="tab-design" class="tab-panel">
+
+        <!-- Template Picker -->
+        <div class="editor-card">
+          <div class="card-header">
+            <div class="card-title-group"><span>📐 Choose Resume Template</span></div>
+          </div>
+          <div class="card-body">
+            <div id="templateGridContainer" class="template-grid"></div>
+          </div>
+        </div>
+
+        <!-- Accent Color & Typography -->
+        <div class="editor-card">
+          <div class="card-header">
+            <div class="card-title-group"><span>🎨 Typography & Color Palette</span></div>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label class="form-label">Accent Color</label>
+                <div class="swatch-row" id="colorSwatchContainer"></div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                  <input type="color" id="inpCustomColor" value="#1d4ed8" style="width: 36px; height: 30px; border: none; background: transparent; cursor: pointer;" />
+                  <span style="font-size: 12px; color: var(--text-secondary);">Or pick custom hex color</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="selFontFamily">Font Family</label>
+                <select id="selFontFamily" class="form-select">
+                  <option value="'Inter', sans-serif">Inter (Modern Clean Sans)</option>
+                  <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (Executive)</option>
+                  <option value="'Merriweather', Georgia, serif">Merriweather (Classic Serif)</option>
+                  <option value="'EB Garamond', Garamond, serif">EB Garamond (Academic / Finance)</option>
+                  <option value="'Lora', Georgia, serif">Lora (Editorial Serif)</option>
+                  <option value="'JetBrains Mono', monospace">JetBrains Mono (Developer)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="selFontSize">Font Size Scale</label>
+                <select id="selFontSize" class="form-select">
+                  <option value="small">Compact (9.2pt)</option>
+                  <option value="medium">Standard (10pt)</option>
+                  <option value="large">Comfortable (10.8pt)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="rngLineHeight">
+                  <span>Line Spacing</span>
+                  <span id="lblLineHeightVal">1.42</span>
+                </label>
+                <input type="range" id="rngLineHeight" min="1.2" max="1.65" step="0.02" value="1.42" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="rngSectionSpacing">
+                  <span>Section Gap</span>
+                  <span id="lblSectionSpacingVal">14px</span>
+                </label>
+                <input type="range" id="rngSectionSpacing" min="8" max="24" step="1" value="14" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page Setup & Formatting -->
+        <div class="editor-card">
+          <div class="card-header">
+            <div class="card-title-group"><span>📄 Page Geometry & Header Options</span></div>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="selPaperSize">Paper Format</label>
+                <select id="selPaperSize" class="form-select">
+                  <option value="a4">A4 (210 × 297 mm)</option>
+                  <option value="letter">US Letter (8.5 × 11 in)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="selHeaderAlign">Header Alignment</label>
+                <select id="selHeaderAlign" class="form-select">
+                  <option value="center">Centered Classic</option>
+                  <option value="left">Left Aligned Modern</option>
+                  <option value="split">Split Two-Column Header</option>
+                </select>
+              </div>
+
+              <div class="form-group full-width">
+                <label class="form-label" for="rngPageMargin">
+                  <span>Page Margins</span>
+                  <span id="lblPageMarginVal">14mm</span>
+                </label>
+                <input type="range" id="rngPageMargin" min="8" max="22" step="1" value="14" />
+              </div>
+
+              <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12.5px;">
+                  <input type="checkbox" id="chkShowIcons" checked />
+                  Show Contact Icons
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12.5px;">
+                  <input type="checkbox" id="chkUnderlineLinks" checked />
+                  Underline Hyperlinks
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 3: ATS SCORE & JOB DESCRIPTION MATCHER -->
+      <div id="tab-ats" class="tab-panel">
+
+        <!-- ATS Score Ring & Breakdown -->
+        <div class="ats-score-hero">
+          <div class="score-ring-wrap">
+            <svg class="score-ring-svg" viewBox="0 0 100 100">
+              <circle class="score-ring-bg" cx="50" cy="50" r="40"></circle>
+              <circle id="atsScoreCircle" class="score-ring-fill" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+            </svg>
+            <div id="atsScoreNumber" class="score-ring-value">0</div>
+          </div>
+          <div>
+            <div style="font-weight: 800; font-size: 15px; margin-bottom: 4px;" id="atsScoreHeadline">Real-Time ATS Audit</div>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+              Evaluated dynamically as you add your contact details, sections, action verbs, and quantified bullet points.
+            </p>
+            <div style="margin-top: 8px;">
+              <button type="button" id="btnOpenAtsPlainText" class="btn btn-sm">🔍 View Raw ATS Plain-Text Parse</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Pillar Score Bars -->
+        <div class="editor-card">
+          <div class="card-header">
+            <div class="card-title-group"><span>📊 Resume Audit Breakdown</span></div>
+          </div>
+          <div class="card-body" id="atsChecksContainer"></div>
+        </div>
+
+        <!-- Actionable Improvement Checklist -->
+        <div class="editor-card">
+          <div class="card-header">
+            <div class="card-title-group"><span>⚡ Actionable Suggestions</span></div>
+          </div>
+          <div class="card-body" id="atsTipsContainer"></div>
+        </div>
+
+        <!-- Target Job Description (JD) Keyword Matcher -->
+        <div class="editor-card">
+          <div class="card-header">
+            <div class="card-title-group"><span>🎯 Target Job Description Keyword Matcher</span></div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <div class="form-label">
+                <span>Paste Target Job Description</span>
+                <button type="button" id="btnClearJD" class="btn btn-sm">Clear JD</button>
+              </div>
+              <textarea id="inpJobDescription" class="form-textarea" rows="5" placeholder="Paste any Job Description here to automatically extract required skills and keywords and compare them against your resume..."></textarea>
+            </div>
+
+            <div id="jdResultsBox" style="margin-top: 12px; display: none;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-weight: 700; font-size: 13px;">JD Keyword Match Rate</span>
+                <span id="jdMatchBadge" class="tab-score-pill" style="font-size: 12px; padding: 2px 10px;">0%</span>
+              </div>
+
+              <div style="margin-top: 10px;">
+                <div style="font-size: 11.5px; font-weight: 700; color: var(--warning); margin-bottom: 4px;">
+                  ⚠️ Missing Keywords (Click any pill to + Add directly to your Skills section)
+                </div>
+                <div id="jdMissingPills" class="keyword-pills"></div>
+              </div>
+
+              <div style="margin-top: 12px;">
+                <div style="font-size: 11.5px; font-weight: 700; color: var(--success); margin-bottom: 4px;">
+                  ✓ Matched Keywords Found in Your Resume
+                </div>
+                <div id="jdMatchedPills" class="keyword-pills"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 4: AI WRITING STUDIO & ACTION VERB DICTIONARY -->
+      <div id="tab-ai" class="tab-panel">
+
+        <!-- Standalone Bullet Transformer -->
+        <div class="editor-card">
+          <div class="card-header">
+            <div class="card-title-group"><span>✨ Smart Bullet Point Transformer</span></div>
+          </div>
+          <div class="card-body">
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
+              Type a draft of any responsibility or achievement and transform it into strong action-verb and XYZ-formula bullets.
+            </p>
+            <div class="form-group">
+              <textarea id="inpStudioBullet" class="form-textarea" rows="3" placeholder="Enter your draft bullet point here..."></textarea>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+              <span id="aiStudioProviderBadge" style="font-size: 11px; color: var(--text-muted);">Engine: Built-in Smart Heuristics</span>
+              <button type="button" id="btnRunStudioEnhance" class="btn btn-ai">✨ Transform Bullet</button>
+            </div>
+            <div id="studioResultsContainer" style="margin-top: 12px;"></div>
+          </div>
+        </div>
+
+        <!-- Curated Strong Action Verb Dictionary -->
+        <div class="editor-card">
+          <div class="card-header">
+            <div class="card-title-group"><span>📚 High-Impact Action Verb Lexicon</span></div>
+          </div>
+          <div class="card-body">
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
+              Click any verb below to copy it to your clipboard.
+            </p>
+            <div id="actionVerbsDictionaryContainer"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANE: Live Interactive Paper Preview (Directly Editable!) -->
+    <section class="preview-pane" aria-label="Live Resume Preview">
+      <div class="preview-toolbar">
+        <div class="preview-toolbar-group">
+          <span style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">
+            💡 Direct Canvas Editing Enabled — Click any heading or text on the paper to edit directly!
+          </span>
+          <span id="pageCountStatus" class="page-status-badge">✓ Fits on 1 Page</span>
+        </div>
+
+        <div class="preview-toolbar-group">
+          <label style="display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-secondary); margin-right: 6px; cursor: pointer;" title="Show helpful prompts on empty fields on screen (never printed in PDF)">
+            <input type="checkbox" id="chkShowPlaceholders" checked />
+            Empty Guides
+          </label>
+          <button type="button" id="btnZoomOut" class="btn btn-sm" title="Zoom Out">−</button>
+          <span id="lblZoomLevel" style="font-size: 12px; font-weight: 600; min-width: 44px; text-align: center;">85%</span>
+          <button type="button" id="btnZoomIn" class="btn btn-sm" title="Zoom In">+</button>
+          <button type="button" id="btnZoomFit" class="btn btn-sm" title="Fit to Viewport">Fit</button>
+          <label style="display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-secondary); margin-left: 6px; cursor: pointer;">
+            <input type="checkbox" id="chkPageBreakGuide" checked />
+            Page 1 Line
+          </label>
+        </div>
+      </div>
+
+      <div class="preview-viewport" id="previewViewport">
+        <div class="preview-scale-wrapper" id="previewScaleWrapper">
+          <!-- Page 1 Boundary Guide -->
+          <div id="pageBreakIndicator" class="page-break-indicator" style="top: 297mm;">
+            <span class="page-break-label">Page 1 Boundary</span>
+          </div>
+
+          <!-- Actual Printable & Directly Editable Resume Sheet -->
+          <article id="resumeSheet" class="resume-sheet template-classic-ats size-medium" aria-label="Rendered Resume Document">
+            <!-- Dynamically rendered by app.js -->
+          </article>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       Modals: ATS Plain-Text View & AI Engine Settings
+       ======================================================================== -->
+
+  <!-- Modal 1: ATS Plain-Text Serialization Preview -->
+  <div id="modalAtsPlain" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">🔍 Raw ATS Plain-Text Parser View</div>
+        <button type="button" class="btn btn-sm" data-close-modal="modalAtsPlain">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 10px;">
+          Below is the exact plain-text stream extracted from your resume by Applicant Tracking Systems (Workday, Greenhouse, Lever).
+        </p>
+        <textarea id="atsPlainTextOutput" class="form-textarea" rows="16" readonly style="font-family: 'JetBrains Mono', monospace; font-size: 12px;"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btnCopyAtsPlain" class="btn btn-primary">📋 Copy Plain Text</button>
+        <button type="button" class="btn" data-close-modal="modalAtsPlain">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: AI Engine Configuration (Local-First + Optional Gemini/OpenAI Key) -->
+  <div id="modalAISettings" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">✨ AI & Smart Writing Engine Settings</div>
+        <button type="button" class="btn btn-sm" data-close-modal="modalAISettings">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label" for="selAIProvider">AI Provider Mode</label>
+          <select id="selAIProvider" class="form-select">
+            <option value="local">Built-in Local Smart Engine (100% Offline, Instant, No API Key Needed)</option>
+            <option value="gemini">Google Gemini API (Requires Gemini API Key)</option>
+            <option value="openai">OpenAI API (Requires OpenAI API Key)</option>
+          </select>
+        </div>
+
+        <div id="aiApiKeySection" style="display: none;">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" for="inpAIApiKey">API Key (Stored strictly in your browser's localStorage)</label>
+            <input type="password" id="inpAIApiKey" class="form-input" placeholder="Paste your API key here..." />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inpAIModel">Model Name</label>
+            <input type="text" id="inpAIModel" class="form-input" placeholder="gemini-2.5-flash or gpt-4o-mini" />
+          </div>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 12px; line-height: 1.45;">
+          <strong>Privacy Note:</strong> ResuCraft Pro is 100% local-first. Your resume data and optional API key never leave your browser.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btnSaveAISettings" class="btn btn-primary">Save Settings</button>
+        <button type="button" class="btn" data-close-modal="modalAISettings">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Application Scripts -->
+  <script src="sample-data.js"></script>
+  <script src="ats-engine.js"></script>
+  <script src="ai-assistant.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

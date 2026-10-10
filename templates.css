@@ -1,0 +1,502 @@
+/* ============================================================================
+   ResuCraft Pro — Resume Paper Templates, Direct Canvas Editing & Print Engine
+   ============================================================================ */
+
+.resume-sheet {
+  --resume-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --resume-accent: #1d4ed8;
+  --resume-line-height: 1.42;
+  --resume-section-gap: 14px;
+  --resume-margin: 14mm;
+  --resume-base-size: 10pt;
+
+  width: 210mm;
+  min-height: 297mm;
+  background: #ffffff;
+  color: #111827;
+  font-family: var(--resume-font);
+  font-size: var(--resume-base-size);
+  line-height: var(--resume-line-height);
+  padding: var(--resume-margin);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(15, 23, 42, 0.08);
+  position: relative;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.resume-sheet.paper-letter {
+  width: 215.9mm;
+  min-height: 279.4mm;
+}
+
+.resume-sheet.size-small {
+  --resume-base-size: 9.2pt;
+}
+.resume-sheet.size-medium {
+  --resume-base-size: 10pt;
+}
+.resume-sheet.size-large {
+  --resume-base-size: 10.8pt;
+}
+
+/* Direct Contenteditable Elements on the Paper */
+[contenteditable="true"] {
+  outline: none;
+  border-radius: 2px;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease;
+  cursor: text;
+}
+
+[contenteditable="true"]:hover {
+  background-color: rgba(59, 130, 246, 0.06);
+}
+
+[contenteditable="true"]:focus {
+  background-color: rgba(59, 130, 246, 0.09);
+  box-shadow: 0 0 0 1.5px rgba(59, 130, 246, 0.55);
+}
+
+/* Empty Placeholder Prompts on Paper (Screen only, never printed) */
+[contenteditable="true"]:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  font-style: italic;
+  font-weight: 400;
+  pointer-events: none;
+}
+
+.resume-sheet.hide-placeholders [contenteditable="true"]:empty::before {
+  content: none;
+}
+
+.resume-sheet.hide-placeholders .r-screen-only-placeholder {
+  display: none !important;
+}
+
+/* Hover Section Action Toolbar on the Live Paper Preview */
+.r-section,
+.r-header {
+  position: relative;
+  border-radius: 4px;
+  transition: outline 0.15s ease;
+}
+
+.r-section:hover,
+.r-header:hover {
+  outline: 1px dashed rgba(59, 130, 246, 0.4);
+  outline-offset: 4px;
+}
+
+.r-canvas-toolbar {
+  position: absolute;
+  top: -12px;
+  right: 0;
+  display: none;
+  align-items: center;
+  gap: 3px;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 2px 5px;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  z-index: 30;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+}
+
+.r-section:hover .r-canvas-toolbar {
+  display: inline-flex;
+}
+
+.r-canvas-btn {
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.r-canvas-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.r-canvas-btn.danger:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Common Typography & Elements */
+.r-header {
+  margin-bottom: var(--resume-section-gap);
+}
+
+.r-header.align-center {
+  text-align: center;
+}
+
+.r-header.align-left {
+  text-align: left;
+}
+
+.r-header.align-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  text-align: left;
+}
+
+.r-name {
+  font-size: 2.1em;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  min-height: 1.15em;
+}
+
+.r-job-title {
+  font-size: 1.12em;
+  font-weight: 600;
+  color: var(--resume-accent);
+  margin-top: 2px;
+  min-height: 1.1em;
+}
+
+.r-contact-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 6px;
+  font-size: 0.9em;
+  color: #374151;
+  align-items: center;
+}
+
+.r-header.align-center .r-contact-bar {
+  justify-content: center;
+}
+
+.r-header.align-split .r-contact-bar {
+  justify-content: flex-end;
+  text-align: right;
+  max-width: 52%;
+}
+
+.r-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #374151;
+  text-decoration: none;
+}
+
+.resume-sheet.underline-links a.r-contact-item,
+.resume-sheet.underline-links a.r-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.r-sep {
+  color: #9ca3af;
+  font-size: 0.85em;
+  user-select: none;
+}
+
+/* Sections */
+.r-section {
+  margin-bottom: var(--resume-section-gap);
+}
+
+.r-section:last-child {
+  margin-bottom: 0;
+}
+
+.r-section-title {
+  font-size: 1.02em;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--resume-accent);
+  border-bottom: 1.5px solid var(--resume-accent);
+  padding-bottom: 3px;
+  margin-bottom: 7px;
+}
+
+.r-summary-text {
+  color: #1f2937;
+  font-size: 0.96em;
+  white-space: pre-wrap;
+}
+
+/* Entries */
+.r-entry {
+  margin-bottom: 9px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  position: relative;
+}
+
+.r-entry:last-child {
+  margin-bottom: 0;
+}
+
+.r-entry-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.r-entry-title {
+  font-weight: 700;
+  font-size: 1.02em;
+  color: #0f172a;
+}
+
+.r-entry-subtitle {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: #374151;
+}
+
+.r-entry-meta {
+  font-size: 0.9em;
+  color: #4b5563;
+  font-weight: 500;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.r-bullets {
+  margin: 4px 0 0 16px;
+  padding: 0;
+}
+
+.r-bullets li {
+  margin-bottom: 2.5px;
+  color: #1f2937;
+  font-size: 0.95em;
+  padding-left: 2px;
+}
+
+.r-bullets li:last-child {
+  margin-bottom: 0;
+}
+
+/* Skills List */
+.r-skills-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5px;
+}
+
+.r-skill-row {
+  font-size: 0.95em;
+  line-height: 1.38;
+}
+
+.r-skill-cat {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.r-skill-items {
+  color: #1f2937;
+}
+
+/* ============================================================================
+   Template 1: Harvard / Classic ATS (template-classic-ats)
+   ============================================================================ */
+.resume-sheet.template-classic-ats .r-name {
+  color: #000000;
+  font-size: 2.05em;
+  letter-spacing: -0.01em;
+}
+
+.resume-sheet.template-classic-ats .r-section-title {
+  color: #000000;
+  border-bottom: 1.2px solid #000000;
+  font-size: 0.98em;
+  letter-spacing: 0.08em;
+}
+
+.resume-sheet.template-classic-ats .r-job-title {
+  color: var(--resume-accent);
+}
+
+/* ============================================================================
+   Template 2: Modern Executive (template-modern-exec)
+   ============================================================================ */
+.resume-sheet.template-modern-exec .r-header {
+  border-bottom: 2.5px solid var(--resume-accent);
+  padding-bottom: 10px;
+}
+
+.resume-sheet.template-modern-exec .r-name {
+  color: var(--resume-accent);
+  font-size: 2.25em;
+}
+
+.resume-sheet.template-modern-exec .r-section-title {
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--resume-accent);
+}
+
+.resume-sheet.template-modern-exec .r-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1.5px;
+  background: linear-gradient(90deg, var(--resume-accent), rgba(148, 163, 184, 0.2));
+}
+
+/* ============================================================================
+   Template 3: Tech Minimalist (template-tech-minimal)
+   ============================================================================ */
+.resume-sheet.template-tech-minimal .r-name {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.resume-sheet.template-tech-minimal .r-section-title {
+  border-bottom: none;
+  background: rgba(15, 23, 42, 0.05);
+  border-left: 3.5px solid var(--resume-accent);
+  padding: 3px 8px;
+  font-size: 0.92em;
+  letter-spacing: 0.07em;
+  color: #0f172a;
+}
+
+/* ============================================================================
+   Template 4: Executive Split Sidebar (template-sidebar-split)
+   ============================================================================ */
+.resume-sheet.template-sidebar-split .r-body-split {
+  display: grid;
+  grid-template-columns: 64% 33%;
+  gap: 3%;
+  align-items: start;
+}
+
+.resume-sheet.template-sidebar-split .r-sidebar-col {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 6px;
+  border-top: 3px solid var(--resume-accent);
+}
+
+.resume-sheet.template-sidebar-split .r-sidebar-col .r-skill-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 6px;
+}
+
+/* ============================================================================
+   Template 5: Swiss Architectural Grid (template-swiss-grid)
+   ============================================================================ */
+.resume-sheet.template-swiss-grid .r-section {
+  display: grid;
+  grid-template-columns: 22% 78%;
+  gap: 12px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+}
+
+.resume-sheet.template-swiss-grid .r-section-title {
+  border-bottom: none;
+  font-size: 0.88em;
+  padding-right: 8px;
+  margin-bottom: 0;
+  line-height: 1.3;
+}
+
+/* ============================================================================
+   Template 6: Ultra-Compact One-Pager (template-compact-pro)
+   ============================================================================ */
+.resume-sheet.template-compact-pro {
+  --resume-base-size: 9pt;
+  --resume-line-height: 1.32;
+}
+
+.resume-sheet.template-compact-pro .r-name {
+  font-size: 1.75em;
+}
+
+.resume-sheet.template-compact-pro .r-entry {
+  margin-bottom: 6px;
+}
+
+.resume-sheet.template-compact-pro .r-bullets li {
+  margin-bottom: 1.5px;
+}
+
+/* ============================================================================
+   Print / Save-as-PDF Engine (100% Vector Text & Hide Empty Placeholders)
+   ============================================================================ */
+@media print {
+  @page {
+    size: auto;
+    margin: 0mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .topbar,
+  .editor-pane,
+  .preview-toolbar,
+  .page-break-indicator,
+  .modal-backdrop,
+  .toast-container,
+  .r-canvas-toolbar,
+  .r-screen-only-placeholder {
+    display: none !important;
+  }
+
+  [contenteditable="true"]:empty::before {
+    content: none !important;
+  }
+
+  .workspace,
+  .preview-pane,
+  .preview-viewport,
+  .preview-scale-wrapper {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: none !important;
+    transform: none !important;
+    overflow: visible !important;
+  }
+
+  .resume-sheet {
+    width: 100% !important;
+    min-height: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+
+  .r-section:hover,
+  .r-header:hover {
+    outline: none !important;
+  }
+}
